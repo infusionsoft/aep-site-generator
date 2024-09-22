@@ -1,11 +1,9 @@
 ---
-name: publish
+name: build
 on:
-  push:
+  pull_request:
     branches:
       - main
-  repository_dispatch:
-    types: [publish-event]
     
 # Recommended by https://github.com/JamesIves/github-pages-deploy-action
 permissions:
@@ -36,13 +34,3 @@ jobs:
         run: AEP_LOCATION=./aep-dev AEP_LINTER_LOC=./api-linter npm run generate
       - name: Install, build, and upload your site output
         uses: withastro/action@v2
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
