@@ -28,7 +28,8 @@ export default defineConfig({
     sidebar: sidebar,
     components: {
       'Head': './src/components/overrides/Head.astro',
-      'SkipLink': './src/components/overrides/SkipLink.astro'
+      'SkipLink': './src/components/overrides/SkipLink.astro',
+      'TableOfContents': './src/components/overrides/TableOfContents.astro'
     }
   }),
   tailwind({
