@@ -29,9 +29,14 @@ src/content/docs/*.mdx
 src/content/docs/*.md
 src/content/*
 !src/content/docs/
-src/content/docs/*.mdx
 src/content/docs/**/*.md
 !src/content/docs/index.mdx
 !src/content/docs/general.mdx
 public/json-schema/**/*.json
 public/llms.txt
+
+# IntelliJ local files
+.idea/
+
+# VS Code files
+.vscode/
