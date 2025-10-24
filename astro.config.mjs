@@ -24,7 +24,7 @@ export default defineConfig({
 
   integrations: [
     starlight({
-      title: "AEP",
+      title: "Thryv AEP",
       customCss: [
         // Path to your Tailwind base styles:
         "./src/styles/global.css",
@@ -35,16 +35,6 @@ export default defineConfig({
       ],
       social: [
         { icon: "github", label: "GitHub", href: config.urls.repo },
-        {
-          icon: "blueSky",
-          label: "BlueSky",
-          href: "https://bsky.app/profile/aep.dev",
-        },
-        {
-          icon: "youtube",
-          label: "YouTube",
-          href: "https://youtube.com/@aepdev/videos",
-        },
       ],
       components: {
         Head: "./src/components/overrides/Head.astro",
