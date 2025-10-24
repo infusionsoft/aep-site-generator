@@ -13,9 +13,6 @@ hero:
     - text: Explore the AEPs
       link: /general
       icon: right-arrow
-    - text: View our ecosystem
-      link: /tooling-and-ecosystem
-      icon: right-arrow
 ---
 
 import { Card, CardGrid, LinkButton } from "@astrojs/starlight/components";
@@ -32,16 +29,6 @@ import { Card, CardGrid, LinkButton } from "@astrojs/starlight/components";
 
   </Card>
 
-  <Card title="We have the clients" icon="puzzle" class="flex flex-col h-full">
-    <div class="flex-grow">
-      APIs that conform to the AEPs can take advantage of our Terraform provider, UI, CLI, and MCP server with zero-configuration.
-      The AEPs were designed with a wide variety of clients in mind, not just curl.
-    </div>
-
-    <LinkButton href="/tooling-and-ecosystem">View ecosystem</LinkButton>
-
-  </Card>
-
   <Card title="An Open Standard" icon="approve-check-circle" class="flex flex-col h-full">
     <div class="flex-grow">
       In addition to providing API design guidance, the AEPs also publish versioned editions.
@@ -50,16 +37,6 @@ import { Card, CardGrid, LinkButton } from "@astrojs/starlight/components";
 
     <LinkButton href="/editions">Learn about AEP editions</LinkButton>
     <LinkButton href="/contributing">Contribute to the project</LinkButton>
-
-  </Card>
-
-  <Card title="Read our blog" icon="approve-check-circle" class="flex flex-col h-full">
-    <div class="flex-grow">
-      To find out about our recent work, check out our blog, where post our roadmap, as well
-      as articles around design details of the AEPs and the ecosystem.
-    </div>
-
-    <LinkButton href="/blog">Visit the blog</LinkButton>
 
   </Card>
 

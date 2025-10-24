@@ -486,18 +486,6 @@ let sidebar: Sidebar[] = [
     icon: "open-book",
     items: [],
   },
-  {
-    label: "Tooling",
-    link: "/tooling-and-ecosystem",
-    icon: "puzzle",
-    items: [],
-  },
-  {
-    label: "Blog",
-    link: "/blog",
-    icon: "document",
-    items: [],
-  },
 ];
 
 // Log folder detection status
