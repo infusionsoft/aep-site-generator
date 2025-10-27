@@ -14,27 +14,3 @@ hero:
       link: /general
       icon: right-arrow
 ---
-
-import { Card, CardGrid, LinkButton } from "@astrojs/starlight/components";
-
-<CardGrid>
-  <Card title="Rigorous API design guidelines" icon="open-book" class="flex flex-col h-full">
-    <div class="flex-grow">
-      AEPs are built on proven lessons from industry veterans at Google, Microsoft, Roblox, IBM (and others!) plus major contributors to HTTP and IETF specifications.
-
-      Learn from their experience in crafting APIs that are easy to use, maintain, and evolve.
-    </div>
-  </Card>
-
-  <Card title="An Open Standard" icon="approve-check-circle" class="flex flex-col h-full">
-    <div class="flex-grow">
-      In addition to providing API design guidance, the AEPs also publish versioned editions.
-      Tooling maintained by this project can be used with any API that conforms to these editions.
-    </div>
-
-    <LinkButton href="/editions">Learn about AEP editions</LinkButton>
-    <LinkButton href="/contributing">Contribute to the project</LinkButton>
-
-  </Card>
-
-</CardGrid>
