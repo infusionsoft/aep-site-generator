@@ -2,10 +2,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import * as fs from "fs";
 import rehypeMermaid from "rehype-mermaid";
-import starlightBlog from "starlight-blog";
 import starlightSidebarTopics from "starlight-sidebar-topics";
-
-import tailwindcss from "@tailwindcss/vite";
 
 import tailwindcss from "@tailwindcss/vite";
 
@@ -30,8 +27,7 @@ export default defineConfig({
         "./src/styles/global.css",
       ],
       plugins: [
-        starlightBlog({ navigation: "none" }),
-        starlightSidebarTopics(sidebar, { exclude: ["/blog", "/blog/**/*"] }),
+        starlightSidebarTopics(sidebar),
       ],
       social: [
         { icon: "github", label: "GitHub", href: config.urls.repo },

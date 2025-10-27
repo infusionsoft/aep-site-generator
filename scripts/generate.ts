@@ -519,20 +519,6 @@ if (AEP_LOC != "") {
   // Generate llms.txt file with all AEP contents
   const llmsTxtContent = buildLLMsTxt(aeps);
   writeFile("public/llms.txt", llmsTxtContent);
-
-  // Write blog
-  const entries = await fs.promises.readdir(path.join(AEP_LOC, "blog/"), {
-    withFileTypes: true,
-  });
-
-  let files = entries.filter((entry) => entry.isFile());
-
-  for (var file of files) {
-    const blogFilePath = path.join(AEP_LOC, "blog", file.name);
-    logFileRead(blogFilePath, "Blog post");
-    let fileContents = fs.readFileSync(blogFilePath, "utf-8");
-    writeFile(path.join("src/content/docs/blog", file.name), fileContents);
-  }
 } else {
   console.warn("AEP repo is not found.");
 }
