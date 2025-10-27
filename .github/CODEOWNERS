@@ -1,0 +1,8 @@
+# The API team (Gryffindor) is the default owner for everything in the repo.
+# (Note: CODEOWNERS follows a "last match wins" system.)
+# https://github.com/orgs/infusionsoft/teams/gryffindor
+*     @infusionsoft/gryffindor
+
+# Team-specific components.
+# Some AEPs may be specific to a particular domain or team. In this situation, the team will be given a
+# particular block of AEPs to use, and the applicable AEPs will clearly indicate their scope.
