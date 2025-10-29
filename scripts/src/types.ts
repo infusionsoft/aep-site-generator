@@ -56,19 +56,6 @@ interface AEP {
   slug: string;
 }
 
-interface LinterRule {
-  title: string;
-  aep: string;
-  contents: Markdown;
-  filename: string;
-  slug: string;
-}
-
-interface ConsolidatedLinterRule {
-  aep: string;
-  contents: string;
-}
-
 interface GroupFile {
   categories: Group[];
 }
@@ -80,8 +67,6 @@ interface Group {
 
 export type {
   AEP,
-  LinterRule,
-  ConsolidatedLinterRule,
   Markdown,
   GroupFile,
   Group,

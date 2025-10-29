@@ -2,26 +2,12 @@ import * as fs from "fs";
 import * as path from "path";
 
 import loadConfigFiles from "./src/config";
-import {
-  buildSidebar,
-  buildLinterSidebar,
-  buildOpenAPILinterSidebar,
-  addToSidebar,
-} from "./src/sidebar";
-import {
-  type AEP,
-  type ConsolidatedLinterRule,
-  type GroupFile,
-  type LinterRule,
-  type Sidebar,
-} from "./src/types";
-import { buildMarkdown, Markdown } from "./src/markdown";
-import { load, dump } from "js-yaml";
+import {addToSidebar, buildSidebar,} from "./src/sidebar";
+import {type AEP, type GroupFile, type Sidebar,} from "./src/types";
+import {buildMarkdown, Markdown} from "./src/markdown";
+import {load} from "js-yaml";
 
 const AEP_LOC = process.env.AEP_LOCATION || "";
-const AEP_LINTER_LOC = process.env.AEP_LINTER_LOC || "";
-const AEP_OPENAPI_LINTER_LOC = process.env.AEP_OPENAPI_LINTER_LOC || "";
-const AEP_COMPONENTS = process.env.AEP_COMPONENTS_LOC || "";
 
 // Logging functions
 function logFolderDetection() {
@@ -37,45 +23,6 @@ function logFolderDetection() {
   } else {
     console.log(
       `✗ AEP folder not configured (AEP_LOCATION environment variable)`,
-    );
-  }
-
-  if (AEP_LINTER_LOC) {
-    console.log(`✓ Linter folder found: ${AEP_LINTER_LOC}`);
-    if (fs.existsSync(AEP_LINTER_LOC)) {
-      console.log(`  - Path exists and is accessible`);
-    } else {
-      console.log(`  - ⚠️  Path does not exist`);
-    }
-  } else {
-    console.log(
-      `✗ Linter folder not configured (AEP_LINTER_LOC environment variable)`,
-    );
-  }
-
-  if (AEP_OPENAPI_LINTER_LOC) {
-    console.log(`✓ OpenAPI Linter folder found: ${AEP_OPENAPI_LINTER_LOC}`);
-    if (fs.existsSync(AEP_OPENAPI_LINTER_LOC)) {
-      console.log(`  - Path exists and is accessible`);
-    } else {
-      console.log(`  - ⚠️  Path does not exist`);
-    }
-  } else {
-    console.log(
-      `✗ OpenAPI Linter folder not configured (AEP_OPENAPI_LINTER_LOC environment variable)`,
-    );
-  }
-
-  if (AEP_COMPONENTS) {
-    console.log(`✓ Components folder found: ${AEP_COMPONENTS}`);
-    if (fs.existsSync(AEP_COMPONENTS)) {
-      console.log(`  - Path exists and is accessible`);
-    } else {
-      console.log(`  - ⚠️  Path does not exist`);
-    }
-  } else {
-    console.log(
-      `✗ Components folder not configured (AEP_COMPONENTS_LOC environment variable)`,
     );
   }
 
@@ -99,45 +46,6 @@ async function getFolders(dirPath: string): Promise<string[]> {
     .map((entry) => path.join(dirPath, entry.name));
 
   return folders;
-}
-
-async function getLinterRules(dirPath: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
-
-  const folders = entries
-    .filter(
-      (entry) =>
-        entry.isFile() &&
-        entry.name.endsWith(".md") &&
-        !entry.name.endsWith("index.md"),
-    )
-    .map((entry) => path.join(dirPath, entry.name));
-
-  return folders;
-}
-
-async function getFilePaths(dirPath: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
-
-  const files = entries.map((entry) => path.join(dirPath, entry.name));
-
-  return files;
-}
-
-async function getFilePathsRecursive(dirPath: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
-
-  const files = await Promise.all(
-    entries.map(async (entry) => {
-      const fullPath = path.join(dirPath, entry.name);
-      if (entry.isDirectory()) {
-        return getFilePathsRecursive(fullPath);
-      }
-      return [fullPath];
-    }),
-  );
-
-  return files.flat();
 }
 
 async function writePage(
@@ -273,143 +181,6 @@ async function assembleAEPs(): Promise<AEP[]> {
   return AEPs;
 }
 
-async function assembleLinterRules(): Promise<LinterRule[]> {
-  let linterRules = [];
-  const linter_rule_folders = await getFolders(
-    path.join(AEP_LINTER_LOC, "docs/rules/"),
-  );
-  for (var folder of linter_rule_folders) {
-    try {
-      const linter_files = await getLinterRules(folder);
-      for (var linter_file of linter_files) {
-        linterRules.push(
-          buildLinterRule(
-            linter_file,
-            folder.split("/")[folder.split("/").length - 1],
-          ),
-        );
-      }
-    } catch (e) {
-      console.log(`Linter Rule ${folder} failed with error ${e}`);
-    }
-  }
-  return linterRules;
-}
-
-/**
- * Assembles OpenAPI linter rules from the aep-openapi-linter repository.
- *
- * Structure difference from api-linter:
- * - api-linter: docs/rules/XXXX/*.md (multiple files per AEP)
- * - openapi-linter: docs/XXXX.md (one file per AEP)
- *
- * @returns Promise<LinterRule[]> Array of linter rules, empty if repo not found
- */
-async function assembleOpenAPILinterRules(): Promise<LinterRule[]> {
-  // Defensive check: Verify repository exists
-  if (!fs.existsSync(AEP_OPENAPI_LINTER_LOC)) {
-    console.log("ℹ️  OpenAPI linter repository not found, skipping...");
-    console.log(`   Expected location: ${AEP_OPENAPI_LINTER_LOC}`);
-    return [];
-  }
-
-  const docsPath = path.join(AEP_OPENAPI_LINTER_LOC, "docs");
-
-  // Defensive check: Verify docs directory exists
-  if (!fs.existsSync(docsPath)) {
-    console.warn("⚠️  OpenAPI linter docs directory not found");
-    console.warn(`   Expected: ${docsPath}`);
-    return [];
-  }
-
-  let linterRules: LinterRule[] = [];
-
-  try {
-    const files = await fs.promises.readdir(docsPath);
-
-    for (const file of files) {
-      // Process only numbered AEP files (e.g., 0131.md, 0132.md)
-      // Skip index files like rules.md
-      if (file.match(/^\d{4}\.md$/)) {
-        const filePath = path.join(docsPath, file);
-        const aepNumber = file.split(".")[0]; // Extract "0131" from "0131.md"
-
-        try {
-          const rule = buildLinterRule(filePath, aepNumber);
-          linterRules.push(rule);
-          console.log(`✓ Processed OpenAPI linter rule: AEP-${aepNumber}`);
-        } catch (error) {
-          console.error(`❌ Failed to process ${file}:`, error);
-          // Continue processing other files
-        }
-      }
-    }
-
-    console.log(`✓ Assembled ${linterRules.length} OpenAPI linter rules`);
-  } catch (error) {
-    console.error("❌ Error reading OpenAPI linter docs directory:", error);
-    return [];
-  }
-
-  return linterRules;
-}
-
-function buildLinterRule(rulePath: string, aep: string): LinterRule {
-  logFileRead(rulePath, "Linter rule");
-  let contents = fs.readFileSync(rulePath, "utf-8");
-  let title = getTitle(contents);
-
-  contents = contents.replace("---", `---\ntitle: ${title}`);
-
-  let filename = rulePath.split("/")[rulePath.split("/").length - 1];
-
-  return {
-    title: title,
-    aep: aep,
-    contents: contents,
-    filename: filename,
-    slug: filename.split(".")[0],
-  };
-}
-
-function consolidateLinterRule(
-  linterRules: LinterRule[],
-): ConsolidatedLinterRule[] {
-  let rules = {};
-  for (var rule of linterRules) {
-    if (rule.aep in rules) {
-      rules[rule.aep].push(rule);
-    } else {
-      rules[rule.aep] = [rule];
-    }
-  }
-
-  let consolidated_rules = [];
-  for (var key in rules) {
-    let rules_contents = rules[key].map(
-      (aep) => `<details>
-<summary>${aep.title}</summary>
-${aep.contents.replace(/---[\s\S]*?---/m, "")}
-</details>
-`,
-    );
-    let contents = `---
-title: AEP-${rules[key][0].aep} Linter Rules
----
-${rules_contents.join("\n")}
-`;
-    consolidated_rules.push({ contents: contents, aep: rules[key][0].aep });
-  }
-  return consolidated_rules;
-}
-
-function writeRule(rule: ConsolidatedLinterRule, outputPath?: string) {
-  const filePath =
-    outputPath ||
-    path.join(`src/content/docs/tooling/linter/rules/`, `${rule.aep}.md`);
-  writeFile(filePath, rule.contents);
-}
-
 function writeFile(filePath: string, contents: string) {
   const outDir = path.dirname(filePath);
   if (!fs.existsSync(outDir)) {
@@ -521,99 +292,6 @@ if (AEP_LOC != "") {
   writeFile("public/llms.txt", llmsTxtContent);
 } else {
   console.warn("AEP repo is not found.");
-}
-
-if (AEP_LINTER_LOC != "") {
-  console.log("=== Processing Linter Repository ===");
-  // Write linter pages.
-  await writePage(
-    AEP_LINTER_LOC,
-    "README.md",
-    "src/content/docs/tooling/linter/index.md",
-    "Protobuf Linter",
-  );
-
-  // Write site generator.
-  await writePage(
-    ".",
-    "README.md",
-    "src/content/docs/tooling/website/index.md",
-    "",
-  );
-
-  // Write out linter rules.
-  let linter_rules = await assembleLinterRules();
-  let consolidated_rules = consolidateLinterRule(linter_rules);
-  for (var rule of consolidated_rules) {
-    writeRule(rule);
-  }
-
-  sidebar = buildLinterSidebar(consolidated_rules, sidebar);
-  sidebar = addToSidebar(sidebar, "Tooling", [
-    { label: "Website", link: "tooling/website" },
-  ]);
-} else {
-  console.warn("Proto linter repo is not found.");
-}
-
-if (AEP_OPENAPI_LINTER_LOC != "") {
-  console.log("=== Processing OpenAPI Linter Repository ===");
-
-  // Process OpenAPI linter rules
-  const openapiLinterRules = await assembleOpenAPILinterRules();
-
-  if (openapiLinterRules.length > 0) {
-    // Write OpenAPI linter overview page
-    await writePage(
-      AEP_OPENAPI_LINTER_LOC,
-      "README.md",
-      "src/content/docs/tooling/openapi-linter/index.md",
-      "OpenAPI Linter",
-    );
-
-    // Consolidate rules (groups by AEP number)
-    const consolidatedOpenAPIRules = consolidateLinterRule(openapiLinterRules);
-
-    // Write rule markdown files
-    for (const rule of consolidatedOpenAPIRules) {
-      const outputPath = path.join(
-        "src/content/docs/tooling/openapi-linter/rules",
-        `${rule.aep}.md`,
-      );
-      writeRule(rule, outputPath);
-    }
-
-    // Update sidebar navigation
-    sidebar = buildOpenAPILinterSidebar(consolidatedOpenAPIRules, sidebar);
-
-    console.log("✅ OpenAPI linter integration complete\n");
-  } else {
-    console.log("ℹ️  No OpenAPI linter rules found, skipping integration\n");
-  }
-} else {
-  console.log("ℹ️  OpenAPI linter repo not configured, skipping...\n");
-}
-
-if (AEP_COMPONENTS != "") {
-  console.log("=== Processing Components Repository ===");
-  // Read all YAML component files.
-  const filePaths = await getFilePathsRecursive(
-    path.join(AEP_COMPONENTS, "json_schema"),
-  );
-  for (const filePath of filePaths) {
-    logFileRead(filePath, "Component schema");
-    const fileContents = fs.readFileSync(filePath, "utf-8");
-    try {
-      const contentObject = load(fileContents);
-      const id = contentObject.$id;
-      const componentPath = id.replace("https://aep.dev/", "");
-      // Write JSON schema files to public directory
-      const jsonContents = JSON.stringify(contentObject, null, 2);
-      writeFile(path.join("public", componentPath), jsonContents);
-    } catch (e) {
-      console.error(`Error converting ${filePath} to YAML: ${e}`);
-    }
-  }
 }
 
 writeSidebar(sidebar, "sidebar.json");
