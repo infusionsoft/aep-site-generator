@@ -2,7 +2,7 @@ import type {AEP, Sidebar} from "./types";
 
 function buildSidebar(aeps: AEP[], groups: any, sidebar: Sidebar[]): Sidebar[] {
   let response = [];
-  for (var group of groups.categories) {
+  for (let group of groups.categories) {
     response.push({
       label: group.title,
       items: aeps
@@ -20,14 +20,12 @@ function buildSidebar(aeps: AEP[], groups: any, sidebar: Sidebar[]): Sidebar[] {
 
 function addToSidebar(sidebar: Sidebar[], label: string, items): Sidebar[] {
   const targetGroupIndex = sidebar.findIndex((group) => group.label === label);
-  if (targetGroupIndex != -1) {
-    if (Array.isArray(sidebar[targetGroupIndex].items)) {
-      sidebar[targetGroupIndex].items.push(...items);
-    } else {
-      sidebar[targetGroupIndex].items = items;
-    }
+  if (targetGroupIndex == -1) {
+    sidebar.push({label: label, items: items});
+  } else if (Array.isArray(sidebar[targetGroupIndex].items)) {
+    sidebar[targetGroupIndex].items.push(...items);
   } else {
-    sidebar.push({ label: label, items: items });
+    sidebar[targetGroupIndex].items = items;
   }
   return sidebar;
 }

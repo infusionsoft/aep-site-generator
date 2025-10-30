@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 import loadConfigFiles from "./src/config";
 import {addToSidebar, buildSidebar,} from "./src/sidebar";
@@ -39,7 +39,7 @@ function logFileWrite(filePath: string, size?: number) {
 }
 
 async function getFolders(dirPath: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+  const entries = await fs.promises.readdir(dirPath, {withFileTypes: true});
 
   const folders = entries
     .filter((entry) => entry.isDirectory())
@@ -69,22 +69,22 @@ async function writePages(
 ): Promise<Sidebar[]> {
   const entries = await fs.promises.readdir(
     path.join(dirPath, "pages/general/"),
-    { withFileTypes: true },
+    {withFileTypes: true},
   );
 
   let files = entries.filter(
     (entry) => entry.isFile() && entry.name.endsWith(".md"),
   );
 
-  for (var file of files) {
-    writePage(
+  for (let file of files) {
+    await writePage(
       path.join(dirPath, "pages/general"),
       file.name,
       path.join("src/content/docs", file.name),
     );
     addToSidebar(sidebar, "Overview", [file.name.replace(".md", "")]);
   }
-  writePage(
+  await writePage(
     dirPath,
     "CONTRIBUTING.md",
     path.join("src/content/docs", "contributing.md"),
@@ -114,9 +114,9 @@ function readGroupFile(dirPath: string): GroupFile {
 }
 
 function getTitle(contents: string): string {
-  var title_regex = /# (.*)\n/;
-  const matches = contents.match(title_regex);
-  return matches[1]!.replaceAll(":", "-").replaceAll("`", "");
+  let title_regex = /# (.*)\n/;
+  const matches = new RegExp(title_regex).exec(contents);
+  return matches[1].replaceAll(":", "-").replaceAll("`", "");
 }
 
 function buildAEP(files: string[], folder: string): AEP {
@@ -170,7 +170,7 @@ function writeSidebar(sideBar: any, filePath: string) {
 async function assembleAEPs(): Promise<AEP[]> {
   let AEPs = [];
   const aep_folders = await getFolders(path.join(AEP_LOC, "aep/general/"));
-  for (var folder of aep_folders) {
+  for (let folder of aep_folders) {
     try {
       const files = readAEP(folder);
       AEPs.push(buildAEP(files, folder));
@@ -184,18 +184,18 @@ async function assembleAEPs(): Promise<AEP[]> {
 function writeFile(filePath: string, contents: string) {
   const outDir = path.dirname(filePath);
   if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true });
+    fs.mkdirSync(outDir, {recursive: true});
   }
 
   logFileWrite(filePath, contents.length);
-  fs.writeFileSync(filePath, contents, { flag: "w" });
+  fs.writeFileSync(filePath, contents, {flag: "w"});
 }
 
 function buildFullAEPList(aeps: AEP[]) {
   let response = [];
   let groups = readGroupFile(AEP_LOC);
 
-  for (var group of groups.categories) {
+  for (let group of groups.categories) {
     response.push({
       label: group.title,
       items: aeps
@@ -220,22 +220,22 @@ function buildRedirects(aeps: AEP[]): object {
 
 export function buildLLMsTxt(aeps: AEP[]): string {
   // Sort AEPs by ID for consistent ordering
-  const sortedAEPs = aeps.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+  const sortedAEPs = aeps.toSorted((a, b) => Number.parseInt(a.id) - Number.parseInt(b.id));
 
   const sections = sortedAEPs.map((aep) => {
     // Get the raw markdown content without frontmatter and components
     let content = aep.contents.contents;
 
     // Remove any remaining component imports or JSX-style tags
-    content = content.replace(/import\s+.*from\s+['"].*['"];?\n?/g, "");
-    content = content.replace(
+    content = content.replaceAll(/import\s+.*from\s+['"].*['"];?\n?/g, "");
+    content = content.replaceAll(
       /<[A-Z][^>]*\/?>.*?<\/[A-Z][^>]*>|<[A-Z][^>]*\/>/gs,
       "",
     );
 
     // Clean up any remaining MDX artifacts
-    content = content.replace(/\{\/\*[\s\S]*?\*\/\}/g, ""); // Remove JSX comments
-    content = content.replace(/<!--[\s\S]*?-->/g, ""); // Remove HTML comments
+    content = content.replaceAll(/\{\/\*[\s\S]*?\*\/}/g, ""); // Remove JSX comments
+    content = content.replaceAll(/<!--[\s\S]*?-->/g, ""); // Remove HTML comments
     content = content.trim();
 
     return `# AEP-${aep.id} ${aep.title}\n\n${content}`;
@@ -262,7 +262,9 @@ let sidebar: Sidebar[] = [
 // Log folder detection status
 logFolderDetection();
 
-if (AEP_LOC != "") {
+if (AEP_LOC == "") {
+  console.warn("AEP repo is not found.");
+} else {
   console.log("=== Processing AEP Repository ===");
   // Build config.
   let config = loadConfigFiles("hero.yaml", "urls.yaml", "site.yaml");
@@ -281,7 +283,7 @@ if (AEP_LOC != "") {
   writeSidebar(full_aeps, "full_aeps.json");
 
   // Write AEPs to files.
-  for (var aep of aeps) {
+  for (let aep of aeps) {
     writeMarkdown(aep);
   }
 
@@ -290,8 +292,6 @@ if (AEP_LOC != "") {
   // Generate llms.txt file with all AEP contents
   const llmsTxtContent = buildLLMsTxt(aeps);
   writeFile("public/llms.txt", llmsTxtContent);
-} else {
-  console.warn("AEP repo is not found.");
 }
 
 writeSidebar(sidebar, "sidebar.json");
