@@ -9,7 +9,7 @@ const categories = sideBar.map(item => item.label);
 <div>
   <div class="mb-4 text-right">
     <select id="global-review-filter" class="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-      <option value="finalized" selected>Finalized</option>
+      <option value="approved" selected>Approved</option>
       <option value="all">All</option>
     </select>
   </div>
@@ -36,8 +36,8 @@ const categories = sideBar.map(item => item.label);
         const status = entry.getAttribute('data-status');
         let shouldShow = true;
         
-        if (filterValue === 'finalized') {
-          shouldShow = status !== 'reviewing';
+        if (filterValue === 'approved') {
+          shouldShow = status == 'approved';
         } else if (filterValue === 'all') {
           shouldShow = true;
         }
