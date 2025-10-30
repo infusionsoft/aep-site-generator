@@ -200,7 +200,10 @@ function buildFullAEPList(aeps: AEP[]) {
       label: group.title,
       items: aeps
         .filter((aep) => aep.category == group.code)
-        .sort((a1, a2) => (a1.order > a2.order ? 1 : -1))
+        // This used to compare order instead of id to sort. But since most of the AEPs don't have the order field, it
+        // was causing them to appear completely unsorted. If we want to change this back to order in the future, to
+        // support custom ordering, that's fine, but the AEPs will need that property to be added to all of them.
+        .sort((a1, a2) => (a1.id > a2.id ? 1 : -1))
         .map((aep) => {
           return {
             title: aep.title,
