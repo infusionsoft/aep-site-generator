@@ -13,6 +13,7 @@ export const collections = {
           created: z.optional(z.date()),
           updated: z.optional(z.date()),
           id: z.optional(z.number()),
+          state: z.optional(z.string()),
         });
       },
     }),

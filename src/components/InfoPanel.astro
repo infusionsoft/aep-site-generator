@@ -11,6 +11,11 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString(undefined, options);
 }
 
+function formatState(value: string | undefined | null): string {
+  if (!value) return "";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 const depth = 0;
 ---
 {
@@ -20,12 +25,13 @@ const depth = 0;
       <li>
         <span>Slug: </span><a class="inline" href={props.slug}>/{props.slug}</a>
       </li>
+      <li><span>State: </span>{formatState(props.data.state)}</li>
       <li><span>Created: </span>{formatDate(props.data.created)}</li>
-      {props.data.updated && <li><span>Updated:</span> {formatDate(props.data.updated)}</li>}
+      <li><span>Updated: </span>{formatDate(props.data.updated ?? props.data.created)}</li>
       <li>
         <a class="inline"
           href={
-            "https://github.com/aep-dev/aeps/edit/main/aep/general/" +
+            "https://github.com/infusionsoft/aeps/edit/main/aep/general/" +
             props.data.id.toString().padStart(4, "0") + "/aep.md.j2"
           }
         >
