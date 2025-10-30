@@ -1,4 +1,6 @@
 ---
+import { capitalizeFirst } from './utils/text';
+
 const props = Astro.props.entry;
 
 function formatDate(date: Date): string {
@@ -11,10 +13,6 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString(undefined, options);
 }
 
-function formatState(value: string | undefined | null): string {
-  if (!value) return "";
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
 
 const depth = 0;
 ---
@@ -25,7 +23,7 @@ const depth = 0;
       <li>
         <span>Slug: </span><a class="inline" href={props.slug}>/{props.slug}</a>
       </li>
-      <li><span>State: </span>{formatState(props.data.state)}</li>
+      <li><span>State: </span>{capitalizeFirst(props.data.state)}</li>
       <li><span>Created: </span>{formatDate(props.data.created)}</li>
       <li><span>Updated: </span>{formatDate(props.data.updated ?? props.data.created)}</li>
       <li>

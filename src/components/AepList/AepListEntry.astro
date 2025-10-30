@@ -2,6 +2,7 @@
 // An altered version of astrojs/starlight/components/LinkCard
 
 import type { HTMLAttributes } from 'astro/types';
+import { capitalizeFirst } from '../utils/text';
 
 interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
 	title: string;
@@ -17,7 +18,11 @@ const { title, id, state, ...attributes } = Astro.props;
 		<a class="no-underline leading-[var(--sl-line-height-headings)] relative before:content-[''] before:absolute before:inset-0" {...attributes}>
 			<span class="text-black dark:text-white font-semibold text-lg pr-4" set:html={title} />
 		</a>
-        {state == "reviewing" && <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Reviewing</span>}
-		    {state == "draft" && <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">Draft</span>}
+				{state !== "approved" && (
+					<span
+						class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+						set:html={capitalizeFirst(state)}
+					/>
+				)}
 	</span>
 </div>
