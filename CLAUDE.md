@@ -20,8 +20,6 @@ The site generator requires external repositories to be cloned and referenced vi
 
 ```bash
 export AEP_LOCATION="../aeps"           # Main AEP documentation repo
-export AEP_LINTER_LOC="../api-linter"  # API linter rules repo
-export AEP_COMPONENTS_LOC="../aep-components"  # Components repo
 npm run generate
 npm run dev
 ```
@@ -34,8 +32,8 @@ This is a two-stage site generator built on Astro and Starlight:
 
 ### Stage 1: Generator (`scripts/generate.ts`)
 
-- Reads documentation from multiple external repos (aeps, api-linter, aep-components)
-- Transforms AEP content (formatted as Markdown with Jinja2) and custom syntax into MDX
+- Reads documentation from external repo called `aeps`
+- Transforms AEP content (formatted as Markdown) and custom syntax into MDX
 - Generates sidebar configuration and navigation
 - Outputs processed files to `src/content/docs/` and `generated/`
 
@@ -63,7 +61,7 @@ This is a two-stage site generator built on Astro and Starlight:
 
 **Content Processing:**
 
-- Converts Jinja2 templates (`aep.md.j2`) to MDX
+- Converts Markdown (`aep.md`) to MDX
 - Transforms custom syntax (tabs, callouts, samples) to Starlight components
 - Processes AEP metadata from YAML frontmatter
 - Generates redirects and cross-references
@@ -91,9 +89,9 @@ Run tests with `npm test`. Tests use a custom test runner and cover:
 
 ## Content Generation Flow
 
-1. Clone external repos (aeps, api-linter, aep-components)
+1. Clone external repo called `aeps`
 2. Run `npm run generate` to process all content
-3. Generator reads YAML configs and Jinja2 templates
+3. Generator reads YAML configs and Markdown files
 4. Transforms content through markdown pipeline
 5. Outputs MDX files and JSON configs
 6. Generates `public/llms.txt` with all AEP contents for LLM consumption

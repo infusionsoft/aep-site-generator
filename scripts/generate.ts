@@ -94,7 +94,7 @@ async function writePages(
 }
 
 function readAEP(dirPath: string): string[] {
-  const md_path = path.join(dirPath, "aep.md.j2");
+  const md_path = path.join(dirPath, "aep.md");
   const yaml_path = path.join(dirPath, "aep.yaml");
 
   logFileRead(md_path, "AEP markdown template");
