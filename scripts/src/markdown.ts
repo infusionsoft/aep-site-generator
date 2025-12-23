@@ -4,9 +4,9 @@ import {dump} from "js-yaml";
 const ASIDES = {
   Important: { title: "Important", type: "caution" },
   Note: { title: "Note", type: "note" },
-  "TL;DR": { "title:": "TL;DR", type: "tip" },
+  "TL;DR": { title: "TL;DR", type: "tip" },
   Warning: { title: "Warning", type: "danger" },
-  Summary: { type: "tip", title: "Summary" },
+  Summary: { title: "Summary" , type: "tip" },
 };
 
 const RULE_COLORS = {
