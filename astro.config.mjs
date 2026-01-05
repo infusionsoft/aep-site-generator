@@ -6,7 +6,7 @@ import starlightSidebarTopics from "starlight-sidebar-topics";
 
 import tailwindcss from "@tailwindcss/vite";
 
-let sidebar = JSON.parse(fs.readFileSync("generated/sidebar.json"));
+let sidebar = JSON.parse(fs.readFileSync("generated/sidebar-from-site-structure.json"));
 let redirects = JSON.parse(fs.readFileSync("generated/redirects.json"));
 let config = JSON.parse(fs.readFileSync("generated/config.json"));
 let aepEditions = JSON.parse(fs.readFileSync("aep-editions.json"));

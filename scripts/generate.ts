@@ -2,8 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import loadConfigFiles from "./src/config";
-import {addToSidebar, buildSidebar,} from "./src/sidebar";
-import {type AEP, type GroupFile, type Sidebar,} from "./src/types";
+import {type AEP, type GroupFile} from "./src/types";
 import {buildMarkdown, Markdown} from "./src/markdown";
 import {load} from "js-yaml";
 import {
@@ -12,6 +11,14 @@ import {
   writeFile,
   getFolders,
 } from "./src/utils";
+import {
+  createEmptySiteStructure,
+  addOverviewPage,
+  addAEPEdition,
+  writeSiteStructure,
+  type SiteStructure,
+} from "../src/utils/site-structure";
+import { assembleSidebarFromSiteStructure } from "../src/utils/sidebar-from-site-structure";
 
 const AEP_LOC = process.env.AEP_LOCATION || "";
 const AEP_EDITION_V4_PREVIEW = process.env.AEP_EDITION_V4_PREVIEW || "";
@@ -64,10 +71,10 @@ async function writePage(
   writeFile(outputPath, contents.removeTitle().build());
 }
 
-async function writePages(
+async function writePagesToSiteStructure(
   dirPath: string,
-  sidebar: Sidebar[],
-): Promise<Sidebar[]> {
+  siteStructure: SiteStructure,
+): Promise<SiteStructure> {
   const entries = await fs.promises.readdir(
     path.join(dirPath, "pages/general/"),
     {withFileTypes: true},
@@ -83,15 +90,19 @@ async function writePages(
       file.name,
       path.join("src/content/docs", file.name),
     );
-    addToSidebar(sidebar, "Overview", [file.name.replace(".md", "")]);
+    const link = file.name.replace(".md", "");
+    addOverviewPage(siteStructure, { label: link, link });
   }
   await writePage(
     dirPath,
     "CONTRIBUTING.md",
     path.join("src/content/docs", "contributing.md"),
   );
-  addToSidebar(sidebar, "Overview", ["contributing"]);
-  return sidebar;
+  addOverviewPage(siteStructure, {
+    label: "contributing",
+    link: "contributing",
+  });
+  return siteStructure;
 }
 
 function readAEP(dirPath: string): string[] {
@@ -232,25 +243,11 @@ export function buildLLMsTxt(aeps: AEP[]): string {
   return sections.join("\n\n---\n\n");
 }
 
-let sidebar: Sidebar[] = [
-  {
-    label: "Overview",
-    link: "1",
-    icon: "bars",
-    id: "overview",
-    items: [],
-  },
-  {
-    label: "AEPs",
-    link: "/general",
-    icon: "open-book",
-    id: "aeps",
-    items: [],
-  },
-];
-
 // Log folder detection status
 logFolderDetection();
+
+// Create site structure
+let siteStructure = createEmptySiteStructure();
 
 if (AEP_LOC == "") {
   console.warn("AEP repo is not found.");
@@ -261,26 +258,31 @@ if (AEP_LOC == "") {
   writeSidebar(config, "config.json");
 
   // Write assorted pages.
-  sidebar = await writePages(AEP_LOC, sidebar);
+  siteStructure = await writePagesToSiteStructure(AEP_LOC, siteStructure);
 
   // Build out AEPs.
   let aeps = await assembleAEPs();
 
-  // Build sidebar.
-  sidebar = buildSidebar(aeps, readGroupFile(AEP_LOC), sidebar);
+  // Add AEPs to site structure
+  const groups = readGroupFile(AEP_LOC);
+  addAEPEdition(siteStructure, "general", aeps, groups, ".");
 
   let full_aeps = buildFullAEPList(aeps);
   writeSidebar(full_aeps, "full_aeps.json");
 
-  // Write AEPs to files.
-  for (let aep of aeps) {
+  // Write AEPs to files (only categorized ones to match sidebar).
+  const validCategories = new Set(groups.categories.map((c) => c.code));
+  const categorizedAEPs = aeps.filter((aep) =>
+    validCategories.has(aep.category),
+  );
+  for (let aep of categorizedAEPs) {
     writeMarkdown(aep);
   }
 
-  writeSidebar(buildRedirects(aeps), "redirects.json");
+  writeSidebar(buildRedirects(categorizedAEPs), "redirects.json");
 
   // Generate llms.txt file with all AEP contents
-  const llmsTxtContent = buildLLMsTxt(aeps);
+  const llmsTxtContent = buildLLMsTxt(categorizedAEPs);
   writeFile("public/llms.txt", llmsTxtContent);
 }
 
@@ -310,4 +312,9 @@ if (AEP_EDITION_V4_PREVIEW == "") {
   console.log("✅ AEP Edition v4 processing complete\n");
 }
 
-writeSidebar(sidebar, "sidebar.json");
+// Write site structure to JSON
+writeSiteStructure(siteStructure, "generated/site-structure.json");
+
+// Assemble sidebar from site structure and write it
+const sidebar = assembleSidebarFromSiteStructure(siteStructure);
+writeSidebar(sidebar, "sidebar-from-site-structure.json");
