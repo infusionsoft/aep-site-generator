@@ -1,8 +1,12 @@
 {
   "editions": [
     {
-      "name": "latest",
+      "name": "v3",
       "folder": "."
+    },
+    {
+      "name": "v4-preview",
+      "folder": "v4-preview"
     }
   ]
 }

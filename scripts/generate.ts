@@ -14,6 +14,7 @@ import {
 } from "./src/utils";
 
 const AEP_LOC = process.env.AEP_LOCATION || "";
+const AEP_EDITION_V4_PREVIEW = process.env.AEP_EDITION_V4_PREVIEW || "";
 
 // Logging functions
 function logFolderDetection() {
@@ -29,6 +30,19 @@ function logFolderDetection() {
   } else {
     console.log(
       `✗ AEP folder not configured (AEP_LOCATION environment variable)`,
+    );
+  }
+
+  if (AEP_EDITION_V4_PREVIEW) {
+    console.log(`✓ AEP Edition v4 folder found: ${AEP_EDITION_V4_PREVIEW}`);
+    if (fs.existsSync(AEP_EDITION_V4_PREVIEW)) {
+      console.log(`  - Path exists and is accessible`);
+    } else {
+      console.log(`  - ⚠️  Path does not exist`);
+    }
+  } else {
+    console.log(
+      `✗ AEP Edition v4 folder not configured (AEP_EDITION_V4_PREVIEW environment variable)`,
     );
   }
 
@@ -268,6 +282,32 @@ if (AEP_LOC == "") {
   // Generate llms.txt file with all AEP contents
   const llmsTxtContent = buildLLMsTxt(aeps);
   writeFile("public/llms.txt", llmsTxtContent);
+}
+
+if (AEP_EDITION_V4_PREVIEW == "") {
+  console.log("ℹ️  AEP Edition v4 repo not configured, skipping...\n");
+} else {
+  console.log("=== Processing AEP Edition v4 ===");
+  // Build out AEPs from the v4 edition
+  const aep_folders_v4 = await getFolders(
+    path.join(AEP_EDITION_V4_PREVIEW, "aep/general/"),
+  );
+  for (let folder of aep_folders_v4) {
+    try {
+      const files = readAEP(folder);
+      const aep = buildAEP(files, folder);
+
+      // Write to v4-preview directory instead of root
+      aep.contents.frontmatter.slug = `v4-preview/${aep.id.toString()}`;
+      const filePath = path.join("src/content/docs/v4-preview", `${aep.id}.mdx`);
+      writeFile(filePath, aep.contents.build());
+
+      console.log(`✓ Processed AEP-${aep.id} for v4 edition`);
+    } catch (e) {
+      console.log(`AEP ${folder} failed with error ${e}`);
+    }
+  }
+  console.log("✅ AEP Edition v4 processing complete\n");
 }
 
 writeSidebar(sidebar, "sidebar.json");
