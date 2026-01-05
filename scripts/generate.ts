@@ -6,6 +6,12 @@ import {addToSidebar, buildSidebar,} from "./src/sidebar";
 import {type AEP, type GroupFile, type Sidebar,} from "./src/types";
 import {buildMarkdown, Markdown} from "./src/markdown";
 import {load} from "js-yaml";
+import {
+  logFileRead,
+  getTitle,
+  writeFile,
+  getFolders,
+} from "./src/utils";
 
 const AEP_LOC = process.env.AEP_LOCATION || "";
 
@@ -27,25 +33,6 @@ function logFolderDetection() {
   }
 
   console.log("");
-}
-
-function logFileRead(filePath: string, source: string = "unknown") {
-  console.log(`📖 Reading file: ${filePath} (source: ${source})`);
-}
-
-function logFileWrite(filePath: string, size?: number) {
-  const sizeInfo = size ? ` (${size} bytes)` : "";
-  console.log(`📝 Writing file: ${filePath}${sizeInfo}`);
-}
-
-async function getFolders(dirPath: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dirPath, {withFileTypes: true});
-
-  const folders = entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => path.join(dirPath, entry.name));
-
-  return folders;
 }
 
 async function writePage(
@@ -113,12 +100,6 @@ function readGroupFile(dirPath: string): GroupFile {
   return load(yaml_contents) as GroupFile;
 }
 
-function getTitle(contents: string): string {
-  let title_regex = /# (.*)\n/;
-  const matches = new RegExp(title_regex).exec(contents);
-  return matches[1].replaceAll(":", "-").replaceAll("`", "");
-}
-
 function buildAEP(files: string[], folder: string): AEP {
   const md_text = files[0];
   const yaml_text = files[1];
@@ -179,16 +160,6 @@ async function assembleAEPs(): Promise<AEP[]> {
     }
   }
   return AEPs;
-}
-
-function writeFile(filePath: string, contents: string) {
-  const outDir = path.dirname(filePath);
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, {recursive: true});
-  }
-
-  logFileWrite(filePath, contents.length);
-  fs.writeFileSync(filePath, contents, {flag: "w"});
 }
 
 function buildFullAEPList(aeps: AEP[]) {
