@@ -98,6 +98,7 @@ export default defineConfig({
         SkipLink: "./src/components/overrides/SkipLink.astro",
         TableOfContents: "./src/components/overrides/TableOfContents.astro",
         ThemeSelect: "./src/components/overrides/ThemeSelect.astro",
+        Footer: "./src/components/Footer.astro",
       },
     }),
   ],
