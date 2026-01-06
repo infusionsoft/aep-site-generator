@@ -18,7 +18,6 @@ import {
   writeSiteStructure,
   type SiteStructure,
 } from "../src/utils/site-structure";
-import { assembleSidebarFromSiteStructure } from "../src/utils/sidebar-from-site-structure";
 
 const AEP_LOC = process.env.AEP_LOCATION || "";
 const AEP_EDITION_V4_PREVIEW = process.env.AEP_EDITION_V4_PREVIEW || "";
@@ -61,14 +60,16 @@ async function writePage(
   filename: string,
   outputPath: string,
   title?: string,
-) {
+): Promise<string> {
   const filePath = path.join(dirPath, filename);
   logFileRead(filePath, "Page content");
   let contents = new Markdown(fs.readFileSync(filePath, "utf-8"), {});
+  const pageTitle = title ?? getTitle(contents.contents);
   contents.frontmatter = {
-    title: title ?? getTitle(contents.contents),
+    title: pageTitle,
   };
   writeFile(outputPath, contents.removeTitle().build());
+  return pageTitle;
 }
 
 async function writePagesToSiteStructure(
@@ -85,21 +86,21 @@ async function writePagesToSiteStructure(
   );
 
   for (let file of files) {
-    await writePage(
+    const title = await writePage(
       path.join(dirPath, "pages/general"),
       file.name,
       path.join("src/content/docs", file.name),
     );
     const link = file.name.replace(".md", "");
-    addOverviewPage(siteStructure, { label: link, link });
+    addOverviewPage(siteStructure, { label: title, link });
   }
-  await writePage(
+  const contributingTitle = await writePage(
     dirPath,
     "CONTRIBUTING.md",
     path.join("src/content/docs", "contributing.md"),
   );
   addOverviewPage(siteStructure, {
-    label: "contributing",
+    label: contributingTitle,
     link: "contributing",
   });
   return siteStructure;
@@ -292,7 +293,3 @@ if (AEP_EDITION_V4_PREVIEW == "") {
 
 // Write site structure to JSON
 writeSiteStructure(siteStructure, "generated/site-structure.json");
-
-// Assemble sidebar from site structure and write it
-const sidebar = assembleSidebarFromSiteStructure(siteStructure);
-writeSidebar(sidebar, "sidebar-from-site-structure.json");

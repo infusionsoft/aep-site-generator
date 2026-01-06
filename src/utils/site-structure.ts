@@ -33,19 +33,21 @@ interface AEPItem {
 }
 
 /**
- * Overview section containing general pages
+ * Metadata for a navigation section
  */
-interface OverviewSection {
-  pages: PageItem[];
+interface SectionMetadata {
+  label: string;
+  icon: string;
+  id: string;
+  link: string;
 }
 
 /**
- * Tooling section containing linter and other tool pages
+ * Overview section containing general pages
  */
-interface ToolingSection {
+interface OverviewSection {
+  metadata: SectionMetadata;
   pages: PageItem[];
-  linterRules?: string[];
-  openAPILinterRules?: string[];
 }
 
 /**
@@ -61,6 +63,7 @@ interface Edition {
  * AEPs section containing editions and categories
  */
 interface AEPsSection {
+  metadata: SectionMetadata;
   editions: {
     [editionName: string]: Edition;
   };
@@ -72,7 +75,6 @@ interface AEPsSection {
 interface SiteStructure {
   overview: OverviewSection;
   aeps: AEPsSection;
-  tooling: ToolingSection;
 }
 
 /**
@@ -98,13 +100,22 @@ function writeSiteStructure(
 function createEmptySiteStructure(): SiteStructure {
   return {
     overview: {
+      metadata: {
+        label: "Overview",
+        icon: "bars",
+        id: "overview",
+        link: "1",
+      },
       pages: [],
     },
     aeps: {
+      metadata: {
+        label: "AEPs",
+        icon: "open-book",
+        id: "aeps",
+        link: "/aep-list",
+      },
       editions: {},
-    },
-    tooling: {
-      pages: [],
     },
   };
 }
@@ -213,11 +224,11 @@ export type {
   SiteStructure,
   OverviewSection,
   AEPsSection,
-  ToolingSection,
   PageItem,
   AEPCategory,
   AEPItem,
   Edition,
+  SectionMetadata,
 };
 
 export {

@@ -27,7 +27,6 @@
     "rehype-mermaid": "^3.0.0",
     "sharp": "^0.32.6",
     "starlight-blog": "^0.24.3",
-    "starlight-sidebar-topics": "^0.6.2",
     "tailwindcss": "^4.1.4",
     "vite-plugin-radar": "^0.9.6"
   },
