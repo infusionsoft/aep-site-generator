@@ -31,22 +31,6 @@ const Config = z.object({
 
 type Config = z.infer<typeof Config>;
 
-const SideBarItem = z.object({
-  label: z.string(),
-  collapsed: z.boolean().optional(),
-  items: z.array(z.union([z.string(), z.lazy(() => SideBarItem)])),
-});
-
-const SidebarItems = z.array(SideBarItem);
-
-interface Sidebar {
-  label: string;
-  link: string;
-  icon: string;
-  id: string;
-  items: z.infer<typeof SidebarItems>;
-}
-
 interface AEP {
   title: string;
   id: string;
@@ -72,5 +56,4 @@ export type {
   GroupFile,
   Group,
   Config,
-  Sidebar,
 };
