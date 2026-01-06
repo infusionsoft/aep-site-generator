@@ -187,32 +187,6 @@ async function assembleAEPs(): Promise<AEP[]> {
   return AEPs;
 }
 
-function buildFullAEPList(aeps: AEP[]) {
-  let response = [];
-  let groups = readGroupFile(AEP_LOC);
-
-  for (let group of groups.categories) {
-    response.push({
-      label: group.title,
-      items: aeps
-        .filter((aep) => aep.category == group.code)
-        // This used to compare order instead of id to sort. But since most of the AEPs don't have the order field, it
-        // was causing them to appear completely unsorted. If we want to change this back to order in the future, to
-        // support custom ordering, that's fine, but the AEPs will need that property to be added to all of them.
-        .sort((a1, a2) => (a1.id > a2.id ? 1 : -1))
-        .map((aep) => {
-          return {
-            title: aep.title,
-            id: aep.id,
-            slug: aep.slug,
-            status: aep.frontmatter.state,
-          };
-        }),
-    });
-  }
-  return response;
-}
-
 function buildRedirects(aeps: AEP[]): object {
   return Object.fromEntries(aeps.map((aep) => [`/${aep.slug}`, `/${aep.id}`]));
 }
@@ -267,9 +241,6 @@ if (AEP_LOC == "") {
   const groups = readGroupFile(AEP_LOC);
   addAEPEdition(siteStructure, "general", aeps, groups, ".");
 
-  let full_aeps = buildFullAEPList(aeps);
-  writeSidebar(full_aeps, "full_aeps.json");
-
   // Write AEPs to files (only categorized ones to match sidebar).
   const validCategories = new Set(groups.categories.map((c) => c.code));
   const categorizedAEPs = aeps.filter((aep) =>
@@ -291,6 +262,7 @@ if (AEP_EDITION_V4_PREVIEW == "") {
 } else {
   console.log("=== Processing AEP Edition v4 ===");
   // Build out AEPs from the v4 edition
+  let aepsV4 = [];
   const aep_folders_v4 = await getFolders(
     path.join(AEP_EDITION_V4_PREVIEW, "aep/general/"),
   );
@@ -298,6 +270,7 @@ if (AEP_EDITION_V4_PREVIEW == "") {
     try {
       const files = readAEP(folder);
       const aep = buildAEP(files, folder);
+      aepsV4.push(aep);
 
       // Write to v4-preview directory instead of root
       aep.contents.frontmatter.slug = `v4-preview/${aep.id.toString()}`;
@@ -309,6 +282,11 @@ if (AEP_EDITION_V4_PREVIEW == "") {
       console.log(`AEP ${folder} failed with error ${e}`);
     }
   }
+
+  // Add v4 edition to site structure
+  const groupsV4 = readGroupFile(AEP_EDITION_V4_PREVIEW);
+  addAEPEdition(siteStructure, "v4-preview", aepsV4, groupsV4, "v4-preview");
+
   console.log("✅ AEP Edition v4 processing complete\n");
 }
 
