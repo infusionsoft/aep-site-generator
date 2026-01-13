@@ -146,15 +146,22 @@ ${tab["oas"]}
   }
 
   public substituteRuleIdentifiers() {
-    let rule_regex = /\*\*(should(?: not)?|may(?: not)?|must(?: not)?)\*\*/g;
-    let matches = this.contents.matchAll(rule_regex);
-    for (let match of matches) {
-      let color = RULE_COLORS[match[1]];
+    const ruleRegex = /\*\*(should(?: not)?|may(?: not)?|must(?: not)?)\*\*/gi;
+    const matches = this.contents.matchAll(ruleRegex);
+
+    for (const match of matches) {
+      // preserves original casing
+      const originalText = match[1];
+      // normalized for map lookup
+      const lookupKey = originalText.toLowerCase();
+      const color = RULE_COLORS[lookupKey];
+
       this.contents = this.contents.replace(
         match[0],
-        `<b class="${color}">${match[1]}</b>`,
+        `<b class="${color}">${originalText}</b>`,
       );
     }
+
     return this;
   }
 
