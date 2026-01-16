@@ -69,6 +69,7 @@ export function copyImages(aep: AEP) {
 
   for (const img of aep.contents.images) {
     if (fs.existsSync(img.sourceAbsolutePath)) {
+      console.log(`🖼️ Copying image from ${img.sourceAbsolutePath} to ${img.targetAbsolutePath}`);
       fs.copyFileSync(img.sourceAbsolutePath, img.targetAbsolutePath);
     } else {
       console.warn(`⚠️  Image source not found: ${img.sourceAbsolutePath}`);
