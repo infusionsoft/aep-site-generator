@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import type { AEP } from "./types.ts";
 
 /**
  * Logs file read operations
@@ -49,4 +50,28 @@ export async function getFolders(dirPath: string): Promise<string[]> {
     .map((entry) => path.join(dirPath, entry.name));
 
   return folders;
+}
+
+/**
+ * Copies images referenced in the AEP from the source repository to the
+ * local 'src/assets/generated' directory. This allows Vite/Astro to
+ * process and optimize the images during the site build.
+ *
+ * @param aep - The AEP object containing the list of images to copy.
+ */
+export function copyImages(aep: AEP) {
+  if (aep.contents.images.length === 0) return;
+
+  const targetDir = path.join(process.cwd(), "src/assets/generated");
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+
+  for (const img of aep.contents.images) {
+    if (fs.existsSync(img.sourceAbsolutePath)) {
+      fs.copyFileSync(img.sourceAbsolutePath, img.targetAbsolutePath);
+    } else {
+      console.warn(`⚠️  Image source not found: ${img.sourceAbsolutePath}`);
+    }
+  }
 }

@@ -32,6 +32,7 @@ src/content/*
 src/content/docs/**/*.md
 src/content/docs/**/*.mdx
 !src/content/docs/index.mdx
+src/assets/generated/
 public/json-schema/**/*.json
 public/llms.txt
 

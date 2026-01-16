@@ -10,6 +10,7 @@ import {
   getTitle,
   writeFile,
   getFolders,
+  copyImages,
 } from "./src/utils";
 import {
   createEmptySiteStructure,
@@ -165,7 +166,15 @@ function buildAEP(files: string[], folder: string): AEP {
   };
 }
 
+/**
+ * Writes the processed AEP content to an .mdx file in the site structure.
+ * It also triggers the image copying process for any assets referenced in the markdown.
+ *
+ * @param aep - The AEP object containing processed markdown and metadata.
+ */
 function writeMarkdown(aep: AEP) {
+  copyImages(aep);
+
   const filePath = path.join("src/content/docs", `${aep.id}.mdx`);
   writeFile(filePath, aep.contents.build());
 }

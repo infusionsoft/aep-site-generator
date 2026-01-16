@@ -23,10 +23,27 @@ interface Component {
   path: string;
 }
 
+/**
+ * Represents an image asset found in the markdown that needs to be
+ * processed and imported in the final MDX file.
+ */
+interface ImageAsset {
+  /** The unique variable name used for the ESM import */
+  variableName: string;
+  /** The relative path used in the 'import' statement in MDX */
+  importPath: string;
+  /** The absolute path to the image in the source repository */
+  sourceAbsolutePath: string;
+  /** The absolute path where the image will be copied within the site generator */
+  targetAbsolutePath: string;
+}
+
 class Markdown {
   contents: string;
   components: Array<Component>;
   frontmatter: object;
+  /** List of images discovered during substitution that require processing */
+  images: Array<ImageAsset> = [];
 
   constructor(contents: string, frontmatter: object) {
     this.contents = contents;
@@ -50,11 +67,31 @@ class Markdown {
     }
   }
 
+  /**
+   * Builds the final MDX string by combining frontmatter, image imports,
+   * component imports, and the processed markdown content.
+   *
+   * @returns A string containing the full MDX file content.
+   */
   public build(): string {
+    const imageImports = this.images
+      .map((img) => `import ${img.variableName} from '${img.importPath}';`)
+      .join("\n");
+
+    const componentImports = this.components.map((component) => {
+      const isLibrary = !component.path.startsWith("@components") && !component.path.startsWith("/");
+      if (isLibrary) {
+        return `import { ${component.names.join(", ")} } from '${component.path}';`;
+      } else {
+        return `import ${component.names[0]} from '${component.path}';`;
+      }
+    }).join("\n");
+
     return `---
 ${dump(this.frontmatter)}
 ---
-${this.components.map((component) => `import ${component.names.length > 1 ? "{" + component.names.join(",") + "}" : component.names.join(",")} from '${component.path}';`).join("\n")}
+${imageImports}
+${componentImports}
 
 ${this.contents}
 `;
@@ -93,6 +130,7 @@ ${tab["oas"]}
     }
     return this;
   }
+
   public substituteSamples(folder: string) {
     let sample_regex = /\{% sample '(.*)', '(.*)', '(.*)' %}/g;
     let sample2_regex = /\{% sample '(.*)', '(.*)' %}/g;
@@ -130,6 +168,7 @@ ${tab["oas"]}
     }
     return this;
   }
+
   public substituteLinks() {
     // Old site-generator expressed relative links as '[link]: ./0123'.
     // These should be expressed as '[link]: /123'
@@ -247,6 +286,53 @@ ${tabContents(match[3].trimStart())}
     });
     return this;
   }
+
+  /**
+   * Substitutes custom {% image %} tags with Astro <Image /> components.
+   * It tracks the image metadata for copying and generates unique ESM imports
+   * to ensure compatibility with Vite and the Astro image pipeline.
+   *
+   * @param folder - The absolute path to the folder containing the source markdown and its images.
+   * @returns The Markdown instance for chaining.
+   */
+  public substituteImages(folder: string) {
+    const imageRegex = /\{% image '(.*)', '(.*)' %}/g;
+    let imageCounter = 0;
+
+    this.contents = this.contents.replaceAll(imageRegex, (_match, filename, alt) => {
+      const sourceAbsolutePath = path.join(folder, filename);
+      const aepId = path.basename(folder);
+
+      // Define where the file will be copied to within this repo
+      const targetFilename = `${aepId}_${filename}`;
+      const targetAbsolutePath = path.join(process.cwd(), "src/assets/generated", targetFilename);
+
+      // Calculate relative path for the MDX 'import' statement
+      const mdxDir = path.join(process.cwd(), "src/content/docs");
+      let importPath = path.relative(mdxDir, targetAbsolutePath);
+      if (!importPath.startsWith(".")) {
+        importPath = "./" + importPath;
+      }
+
+      const variableName = `img_${imageCounter++}`;
+
+      this.images.push({
+        variableName,
+        importPath,
+        sourceAbsolutePath,
+        targetAbsolutePath
+      });
+
+      return `<Image src={${variableName}} alt="${alt}" />`;
+    });
+
+    this.addComponent({
+      names: ["Image"],
+      path: "astro:assets",
+    });
+
+    return this;
+  }
 }
 
 function buildMarkdown(contents: string, folder: string): Markdown {
@@ -264,7 +350,8 @@ function buildMarkdown(contents: string, folder: string): Markdown {
     .substituteEBNF()
     .substituteStandaloneAEPReferences()
     .substituteAEPLinks()
-    .substitutePlainAEPLinks();
+    .substitutePlainAEPLinks()
+    .substituteImages(folder);
 }
 
 function tabContents(contents: string): string {
