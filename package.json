@@ -20,7 +20,7 @@
     "@hpcc-js/wasm": "^2.33.0",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.17.1",
-    "jsonpath": "^1.1.1",
+    "jsonpath": "^1.2.1",
     "marked": "^17.0.1",
     "playwright": "^1.58.1",
     "rehype-graphviz": "^0.3.0",
