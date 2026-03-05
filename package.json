@@ -44,11 +44,13 @@
   },
   "overrides": {
     "glob": "^13.0.6",
-    "minimatch": "^10.2.4"
+    "minimatch": "^10.2.4",
+    "underscore": "^1.13.8"
   },
   "SecurityVersionLocks": {
     "glob@^13.0.6": "Pinned to >=13.0.6 because older versions are no longer supported. Also GHSA-3ppc-4f35-3m26.",
-    "minimatch@^10.2.4": "Pinned to >=10.2.4 due to GHSA-3ppc-4f35-3m26, GHSA-23c5-xmqv-rm74, and GHSA-7r86-cg39-jmmj"
+    "minimatch@^10.2.4": "Pinned to >=10.2.4 due to GHSA-3ppc-4f35-3m26, GHSA-23c5-xmqv-rm74, and GHSA-7r86-cg39-jmmj",
+    "underscore@^1.13.8": "Pinned to >=1.13.8 due to GHSA-qpx9-hpmf-5gmw"
   },
   "postinstall": "playwright install chromium"
 }
