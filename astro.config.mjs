@@ -1,7 +1,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import * as fs from "node:fs";
-import rehypeMermaid from "rehype-mermaid";
+import astroMermaid from "./src/plugins/astro-mermaid.js";
 import tailwindcss from "@tailwindcss/vite";
 
 // Helper function to check if an edition is the latest
@@ -76,11 +76,8 @@ export default defineConfig({
   site: "https://aep.dev",
   redirects: redirects,
 
-  markdown: {
-    rehypePlugins: [[rehypeMermaid, { dark: true }]],
-  },
-
   integrations: [
+    astroMermaid(),
     starlight({
       title: "Thryv AEP",
       customCss: [
