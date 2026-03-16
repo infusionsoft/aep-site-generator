@@ -2,9 +2,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import loadConfigFiles from "./src/config";
-import {type AEP, type GroupFile} from "./src/types";
-import {buildMarkdown, Markdown} from "./src/markdown";
-import {load} from "js-yaml";
+import { type AEP, type GroupFile } from "./src/types";
+import { buildMarkdown, Markdown } from "./src/markdown";
+import { load } from "js-yaml";
 import {
   logFileRead,
   getTitle,
@@ -79,7 +79,7 @@ async function writePagesToSiteStructure(
 ): Promise<SiteStructure> {
   const entries = await fs.promises.readdir(
     path.join(dirPath, "pages/general/"),
-    {withFileTypes: true},
+    { withFileTypes: true },
   );
 
   let files = entries.filter(
@@ -203,7 +203,9 @@ function buildRedirects(aeps: AEP[]): object {
 
 export function buildLLMsTxt(aeps: AEP[]): string {
   // Sort AEPs by ID for consistent ordering
-  const sortedAEPs = aeps.toSorted((a, b) => Number.parseInt(a.id) - Number.parseInt(b.id));
+  const sortedAEPs = aeps.toSorted(
+    (a, b) => Number.parseInt(a.id) - Number.parseInt(b.id),
+  );
 
   const sections = sortedAEPs.map((aep) => {
     // Get the raw markdown content without frontmatter and components
@@ -284,7 +286,10 @@ if (AEP_EDITION_V4_PREVIEW == "") {
 
       // Write to v4-preview directory instead of root
       aep.contents.frontmatter.slug = `v4-preview/${aep.id.toString()}`;
-      const filePath = path.join("src/content/docs/v4-preview", `${aep.id}.mdx`);
+      const filePath = path.join(
+        "src/content/docs/v4-preview",
+        `${aep.id}.mdx`,
+      );
       writeFile(filePath, aep.contents.build());
 
       console.log(`✓ Processed AEP-${aep.id} for v4 edition`);

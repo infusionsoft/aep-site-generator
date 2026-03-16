@@ -1,12 +1,12 @@
 import * as path from "node:path";
-import {dump} from "js-yaml";
+import { dump } from "js-yaml";
 
 const ASIDES = {
   Important: { title: "Important", type: "caution" },
   Note: { title: "Note", type: "note" },
   "TL;DR": { title: "TL;DR", type: "tip" },
   Warning: { title: "Warning", type: "danger" },
-  Summary: { title: "Summary" , type: "tip" },
+  Summary: { title: "Summary", type: "tip" },
 };
 
 const RULE_COLORS = {
@@ -78,14 +78,18 @@ class Markdown {
       .map((img) => `import ${img.variableName} from '${img.importPath}';`)
       .join("\n");
 
-    const componentImports = this.components.map((component) => {
-      const isLibrary = !component.path.startsWith("@components") && !component.path.startsWith("/");
-      if (isLibrary) {
-        return `import { ${component.names.join(", ")} } from '${component.path}';`;
-      } else {
-        return `import ${component.names[0]} from '${component.path}';`;
-      }
-    }).join("\n");
+    const componentImports = this.components
+      .map((component) => {
+        const isLibrary =
+          !component.path.startsWith("@components") &&
+          !component.path.startsWith("/");
+        if (isLibrary) {
+          return `import { ${component.names.join(", ")} } from '${component.path}';`;
+        } else {
+          return `import ${component.names[0]} from '${component.path}';`;
+        }
+      })
+      .join("\n");
 
     return `---
 ${dump(this.frontmatter)}
@@ -260,10 +264,13 @@ ${tabContents(match[3].trimStart())}
   public substituteStandaloneAEPReferences() {
     // Convert standalone AEP references (case-insensitive) to edition-aware links
     // This matches "aep-XXX" where X is a number, but avoids matching within existing links
-    this.contents = this.contents.replaceAll(/ (aep-\d+)\b/gi, (match, aepRef) => {
-      const aepId = aepRef.replace(/^aep-/i, "");
-      return ` <AepLink href="/${aepId}">${aepRef}</AepLink>`;
-    });
+    this.contents = this.contents.replaceAll(
+      / (aep-\d+)\b/gi,
+      (match, aepRef) => {
+        const aepId = aepRef.replace(/^aep-/i, "");
+        return ` <AepLink href="/${aepId}">${aepRef}</AepLink>`;
+      },
+    );
     this.addComponent({
       names: ["AepLink"],
       path: "@components/AepLink.astro",
@@ -299,32 +306,39 @@ ${tabContents(match[3].trimStart())}
     const imageRegex = /\{% image '(.*)', '(.*)' %}/g;
     let imageCounter = 0;
 
-    this.contents = this.contents.replaceAll(imageRegex, (_match, filename, alt) => {
-      const sourceAbsolutePath = path.join(folder, filename);
-      const aepId = path.basename(folder);
+    this.contents = this.contents.replaceAll(
+      imageRegex,
+      (_match, filename, alt) => {
+        const sourceAbsolutePath = path.join(folder, filename);
+        const aepId = path.basename(folder);
 
-      // Define where the file will be copied to within this repo
-      const targetFilename = `${aepId}_${filename}`;
-      const targetAbsolutePath = path.join(process.cwd(), "src/assets/generated", targetFilename);
+        // Define where the file will be copied to within this repo
+        const targetFilename = `${aepId}_${filename}`;
+        const targetAbsolutePath = path.join(
+          process.cwd(),
+          "src/assets/generated",
+          targetFilename,
+        );
 
-      // Calculate relative path for the MDX 'import' statement
-      const mdxDir = path.join(process.cwd(), "src/content/docs");
-      let importPath = path.relative(mdxDir, targetAbsolutePath);
-      if (!importPath.startsWith(".")) {
-        importPath = "./" + importPath;
-      }
+        // Calculate relative path for the MDX 'import' statement
+        const mdxDir = path.join(process.cwd(), "src/content/docs");
+        let importPath = path.relative(mdxDir, targetAbsolutePath);
+        if (!importPath.startsWith(".")) {
+          importPath = "./" + importPath;
+        }
 
-      const variableName = `img_${imageCounter++}`;
+        const variableName = `img_${imageCounter++}`;
 
-      this.images.push({
-        variableName,
-        importPath,
-        sourceAbsolutePath,
-        targetAbsolutePath
-      });
+        this.images.push({
+          variableName,
+          importPath,
+          sourceAbsolutePath,
+          targetAbsolutePath,
+        });
 
-      return `<Image src={${variableName}} alt="${alt}" />`;
-    });
+        return `<Image src={${variableName}} alt="${alt}" />`;
+      },
+    );
 
     this.addComponent({
       names: ["Image"],

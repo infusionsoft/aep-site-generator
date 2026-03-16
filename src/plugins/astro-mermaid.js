@@ -1,29 +1,29 @@
 import { visit } from "unist-util-visit";
 
 function remarkMermaid() {
-    return (tree) => {
-        visit(tree, "code", (node) => {
-            if (node.lang === "mermaid") {
-                const encodedContent = encodeURIComponent(node.value);
-                node.type = "html";
-                node.value = `<mermaid-diagram data-content="${encodedContent}"></mermaid-diagram>`;
-            }
-        });
-    };
+  return (tree) => {
+    visit(tree, "code", (node) => {
+      if (node.lang === "mermaid") {
+        const encodedContent = encodeURIComponent(node.value);
+        node.type = "html";
+        node.value = `<mermaid-diagram data-content="${encodedContent}"></mermaid-diagram>`;
+      }
+    });
+  };
 }
 
 export default function astroMermaid() {
-    return {
-        name: "astro-mermaid",
-        hooks: {
-            "astro:config:setup"({ updateConfig, injectScript }) {
-                updateConfig({
-                    markdown: { remarkPlugins: [remarkMermaid] },
-                });
+  return {
+    name: "astro-mermaid",
+    hooks: {
+      "astro:config:setup"({ updateConfig, injectScript }) {
+        updateConfig({
+          markdown: { remarkPlugins: [remarkMermaid] },
+        });
 
-                injectScript(
-                    "page",
-                    `
+        injectScript(
+          "page",
+          `
 import mermaid from "mermaid";
 
 const getMermaidTheme = () => {
@@ -73,8 +73,8 @@ observer.observe(document.documentElement, {
   attributeFilter: ["data-theme"],
 });
 `,
-                );
-            },
-        },
-    };
+        );
+      },
+    },
+  };
 }

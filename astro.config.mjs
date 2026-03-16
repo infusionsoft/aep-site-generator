@@ -9,7 +9,7 @@ const isLatestEdition = (edition) => edition.folder === ".";
 
 // Load site structure and transform it into Starlight sidebar format
 const siteStructure = JSON.parse(
-    fs.readFileSync("generated/site-structure.json", "utf-8"),
+  fs.readFileSync("generated/site-structure.json", "utf-8"),
 );
 
 // Helper function to get the latest edition from site structure
@@ -19,13 +19,13 @@ function getLatestEditionName(siteStructure) {
 
   // Check for edition with folder = "." (latest edition)
   const currentFolderEdition = editionNames.find(
-      (name) => siteStructure.aeps.editions[name].folder === ".",
+    (name) => siteStructure.aeps.editions[name].folder === ".",
   );
   if (currentFolderEdition) return currentFolderEdition;
 
   // Check for standard names
   const standardEdition = editionNames.find((name) =>
-      ["general", "main", "default"].includes(name.toLowerCase()),
+    ["general", "main", "default"].includes(name.toLowerCase()),
   );
   if (standardEdition) return standardEdition;
 
@@ -85,9 +85,7 @@ export default defineConfig({
         "./src/styles/global.css",
       ],
       sidebar: sidebar,
-      social: [
-        { icon: "github", label: "GitHub", href: config.urls.repo },
-      ],
+      social: [{ icon: "github", label: "GitHub", href: config.urls.repo }],
       components: {
         Banner: "./src/components/overrides/Banner.astro",
         Head: "./src/components/overrides/Head.astro",

@@ -32,18 +32,18 @@ export function getTitle(contents: string): string {
 export function writeFile(filePath: string, contents: string) {
   const outDir = path.dirname(filePath);
   if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, {recursive: true});
+    fs.mkdirSync(outDir, { recursive: true });
   }
 
   logFileWrite(filePath, contents.length);
-  fs.writeFileSync(filePath, contents, {flag: "w"});
+  fs.writeFileSync(filePath, contents, { flag: "w" });
 }
 
 /**
  * Gets all folders in a directory
  */
 export async function getFolders(dirPath: string): Promise<string[]> {
-  const entries = await fs.promises.readdir(dirPath, {withFileTypes: true});
+  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
 
   const folders = entries
     .filter((entry) => entry.isDirectory())
@@ -69,7 +69,9 @@ export function copyImages(aep: AEP) {
 
   for (const img of aep.contents.images) {
     if (fs.existsSync(img.sourceAbsolutePath)) {
-      console.log(`🖼️ Copying image from ${img.sourceAbsolutePath} to ${img.targetAbsolutePath}`);
+      console.log(
+        `🖼️ Copying image from ${img.sourceAbsolutePath} to ${img.targetAbsolutePath}`,
+      );
       fs.copyFileSync(img.sourceAbsolutePath, img.targetAbsolutePath);
     } else {
       console.warn(`⚠️  Image source not found: ${img.sourceAbsolutePath}`);

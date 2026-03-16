@@ -50,10 +50,4 @@ interface Group {
   title: string;
 }
 
-export type {
-  AEP,
-  Markdown,
-  GroupFile,
-  Group,
-  Config,
-};
+export type { AEP, Markdown, GroupFile, Group, Config };
