@@ -20,4 +20,4 @@ jobs:
       - name: Generate all static pages.
         run: ./scripts/build.sh
       - name: Install, build, and upload your site output
-        uses: withastro/action@v2
+        uses: withastro/action@v4
