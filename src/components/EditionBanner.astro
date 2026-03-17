@@ -1,12 +1,13 @@
 ---
 import editionsConfig from '../../aep-editions.json'
 import {getEditionFromPath, getVersionedPath, isLatestEdition} from '../utils/versions'
+import { withBase } from '../utils/path'
 
 const currentEdition = getEditionFromPath(editionsConfig, Astro.url.pathname)
 const latestEdition = editionsConfig.editions.find(e => isLatestEdition(e))
 
 const isOlderVersion = !isLatestEdition(currentEdition)
-const latestUrl = latestEdition ? getVersionedPath(editionsConfig, Astro.url.pathname, latestEdition) : null
+const latestUrl = latestEdition ? withBase(getVersionedPath(editionsConfig, Astro.url.pathname, latestEdition)) : null
 ---
 {
   isOlderVersion && (

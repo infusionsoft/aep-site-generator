@@ -2,6 +2,7 @@
 import {Icon} from '@astrojs/starlight/components'
 import editionsConfig from '../../aep-editions.json'
 import {getEditionFromPath, getVersionedPath, isVersionedPage} from '../utils/versions'
+import { withBase } from '../utils/path'
 
 const currentEdition = getEditionFromPath(editionsConfig, Astro.url.pathname)
 const showVersionSelect = isVersionedPage(Astro.url.pathname)
@@ -16,7 +17,7 @@ const showVersionSelect = isVersionedPage(Astro.url.pathname)
           {editionsConfig.editions.map((edition) => (
                   <option
                           selected={edition.name === currentEdition?.name}
-                          value={getVersionedPath(editionsConfig, Astro.url.pathname, edition)}
+                          value={withBase(getVersionedPath(editionsConfig, Astro.url.pathname, edition))}
                   >
                     {edition.name}
                   </option>

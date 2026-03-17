@@ -1,6 +1,7 @@
 ---
 const {sections} = Astro.props;
 import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import { withBase } from '../utils/path';
 import { marked } from 'marked';
 ---
 <CardGrid>
@@ -9,7 +10,7 @@ import { marked } from 'marked';
             <article set:html={marked.parse(section.description)} />
 
 
-            <LinkButton href={section.button.href}>{section.button.text}</LinkButton>
+            <LinkButton href={withBase(section.button.href)}>{section.button.text}</LinkButton>
 		</Card>
 	))}
 </CardGrid>

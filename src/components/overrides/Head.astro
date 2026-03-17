@@ -1,5 +1,8 @@
 ---
 import Default from "@astrojs/starlight/components/Head.astro";
+const basePath = import.meta.env.BASE_URL || "/";
+const normalizedBasePath =
+  basePath === "/" ? "/" : basePath.replace(/\/$/, "");
 ---
 <!-- Google Tag Manager -->
 <script is:inline>
@@ -15,4 +18,51 @@ import Default from "@astrojs/starlight/components/Head.astro";
   })(window, document, "script", "dataLayer", "GTM-NSXMVSDN");
 </script>
 <!-- End Google Tag Manager -->
+<script is:inline define:vars={{ normalizedBasePath }}>
+  // Prefix root-relative internal links with Astro base path (e.g. /aep-site-generator)
+  (() => {
+    if (!normalizedBasePath || normalizedBasePath === "/") return;
+
+    const shouldRewrite = (href) =>
+      href &&
+      href.startsWith("/") &&
+      !href.startsWith("//") &&
+      !href.startsWith(`${normalizedBasePath}/`) &&
+      href !== normalizedBasePath;
+
+    const withBase = (href) => `${normalizedBasePath}${href}`;
+
+    const rewriteAnchor = (anchor) => {
+      const href = anchor.getAttribute("href");
+      if (shouldRewrite(href)) {
+        anchor.setAttribute("href", withBase(href));
+      }
+    };
+
+    const rewriteAllAnchors = () => {
+      document.querySelectorAll("a[href^='/']").forEach(rewriteAnchor);
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", rewriteAllAnchors, {
+        once: true,
+      });
+    } else {
+      rewriteAllAnchors();
+    }
+
+    // Also guard dynamically-added content by rewriting before navigation.
+    document.addEventListener(
+      "click",
+      (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const anchor = target.closest("a");
+        if (!anchor) return;
+        rewriteAnchor(anchor);
+      },
+      true,
+    );
+  })();
+</script>
 <Default {...Astro.locals.starlightRoute}><slot /></Default>

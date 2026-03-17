@@ -7,6 +7,7 @@ import TabListItem from '../tabs/TabListItem.astro';
 import TabPanel from '../tabs/TabPanel.astro';
 import MobileMenuFooter from '../starlight/MobileMenuFooter.astro';
 import { getEditionFromPath, isLatestEdition } from '../../utils/versions';
+import { withBase } from '../../utils/path';
 import editionsConfig from '../../../aep-editions.json';
 import siteStructure from '../../../generated/site-structure.json';
 
@@ -24,7 +25,7 @@ const baseSidebar = [
     entries: siteStructure.overview.pages.map((page: any) => ({
       type: 'link' as const,
       label: page.label,
-      href: `/${page.link}`,
+      href: withBase(`/${page.link}`),
       isCurrent: false,
       badge: undefined,
       attrs: {}
@@ -47,10 +48,13 @@ const sidebar = baseSidebar;
 // Helper to build edition-aware AEP link
 function buildAepLink(aepId: string | number): string {
   const aepNumber = String(aepId);
+  let path: string;
   if (!isLatestEdition(currentEdition)) {
-    return `/${currentEdition!.folder}/${aepNumber}`;
+    path = `/${currentEdition!.folder}/${aepNumber}`;
+  } else {
+    path = `/${aepNumber}`;
   }
-  return `/${aepNumber}`;
+  return withBase(path);
 }
 
 type SidebarEntry = StarlightRouteData['sidebar'][number];
