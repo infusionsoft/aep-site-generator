@@ -42,4 +42,3 @@ export function stripBase(path: string): string {
 
   return path;
 }
-
