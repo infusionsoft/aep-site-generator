@@ -198,7 +198,9 @@ async function assembleAEPs(): Promise<AEP[]> {
 }
 
 function buildRedirects(aeps: AEP[]): object {
-  return Object.fromEntries(aeps.map((aep) => [`/${aep.slug}`, `/aep-site-generator/${aep.id}`]));
+  return Object.fromEntries(
+    aeps.map((aep) => [`/${aep.slug}`, `/aep-site-generator/${aep.id}`]),
+  );
 }
 
 export function buildLLMsTxt(aeps: AEP[]): string {
