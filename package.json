@@ -14,15 +14,15 @@
     "prettier:write": "prettier --write ."
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.7",
-    "@astrojs/starlight": "^0.38.1",
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/starlight": "^0.38.2",
     "@astrojs/starlight-tailwind": "^5.0.0",
-    "@hpcc-js/wasm": "^2.33.1",
-    "@tailwindcss/vite": "^4.2.1",
-    "astro": "^6.0.4",
+    "@hpcc-js/wasm": "^2.33.2",
+    "@tailwindcss/vite": "^4.2.2",
+    "astro": "^6.1.3",
     "jsonpath": "^1.3.0",
-    "marked": "^17.0.4",
-    "mermaid": "^11.13.0",
+    "marked": "^17.0.5",
+    "mermaid": "^11.14.0",
     "rehype-graphviz": "^0.3.0",
     "sharp": "^0.34.5",
     "starlight-blog": "^0.26.1",
@@ -38,18 +38,20 @@
     "js-yaml": "^4.1.1",
     "nunjucks": "^3.2.4",
     "prettier": "^3.8.1",
-    "ts-jest": "^29.4.6",
+    "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "overrides": {
     "glob": "^13.0.6",
     "minimatch": "^10.2.4",
-    "underscore": "^1.13.8"
+    "underscore": "^1.13.8",
+    "lodash-es": "^4.18.1"
   },
   "SecurityVersionLocks": {
     "glob@^13.0.6": "Pinned to >=13.0.6 because older versions are no longer supported. Also GHSA-3ppc-4f35-3m26.",
     "minimatch@^10.2.4": "Pinned to >=10.2.4 due to GHSA-3ppc-4f35-3m26, GHSA-23c5-xmqv-rm74, and GHSA-7r86-cg39-jmmj",
-    "underscore@^1.13.8": "Pinned to >=1.13.8 due to GHSA-qpx9-hpmf-5gmw"
+    "underscore@^1.13.8": "Pinned to >=1.13.8 due to GHSA-qpx9-hpmf-5gmw",
+    "lodash-es@^4.18.1": "Pinned due to GHSA-r5fr-rjxr-66jc"
   }
 }
